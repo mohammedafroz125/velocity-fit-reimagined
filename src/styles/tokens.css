@@ -1,0 +1,72 @@
+/**
+ * Velocity Fit - Unified Editorial Design System Tokens
+ * Combining verified Velocity Fit clinical foundation with Lovable editorial visual aesthetic.
+ */
+
+:root {
+  /* Lovable Editorial Color Palette */
+  --color-ink: #1b1917;
+  --color-ink-soft: #44403c;
+  --color-ivory: #faf7f2;
+  --color-paper: #fcfaf6;
+  --color-mist: #eae6df;
+  --color-olive: #6b7f5e;
+  --color-olive-deep: #43523b;
+  --color-champagne: #d6b278;
+
+  /* Harmonized Surface Tokens */
+  --color-surface-dark: var(--color-ink);
+  --color-surface-elevated: #24221f;
+  --color-surface-elevated-hover: #2e2b27;
+  --color-border-dark: rgba(255, 255, 255, 0.12);
+
+  --color-surface-light: var(--color-ivory);
+  --color-surface-warm: var(--color-paper);
+  --color-surface-warm-elevated: #f2eee5;
+  --color-surface-subtle: var(--color-mist);
+  --color-border-subtle: rgba(27, 25, 23, 0.12);
+
+  /* Brand Accents - Champagne & Olive */
+  --color-accent-gold: var(--color-champagne);
+  --color-accent-gold-light: #e6cb9d;
+  --color-accent-gold-hover: #c49e5e;
+  --color-accent-gold-muted: #a68142;
+  --color-accent-gold-glow: rgba(214, 178, 120, 0.22);
+
+  /* Wellness Accent - Muted Olive / Sage */
+  --color-accent-sage: var(--color-olive);
+  --color-accent-sage-subtle: #f0f4ee;
+  --color-accent-sage-dark: var(--color-olive-deep);
+
+  /* Typography Colors */
+  --color-text-primary-dark: var(--color-ink);
+  --color-text-secondary-dark: var(--color-ink-soft);
+  --color-text-muted-dark: #78716c;
+  --color-text-primary-light: var(--color-paper);
+  --color-text-secondary-light: #d6d3d1;
+  --color-text-muted-light: #a8a29e;
+
+  /* Functional Status */
+  --color-success: #2d7a4f;
+  --color-success-bg: #edf7f1;
+  --color-error: #c53b3b;
+  --color-error-bg: #fdf2f2;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
+
+  /* Radii */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+  --radius-full: 9999px;
+
+  /* Elevation Shadows */
+  --shadow-subtle: 0 1px 3px rgba(27, 25, 23, 0.04), 0 1px 2px rgba(27, 25, 23, 0.02);
+  --shadow-card: 0 4px 16px -2px rgba(27, 25, 23, 0.06), 0 2px 6px -1px rgba(27, 25, 23, 0.03);
+  --shadow-elevated: 0 16px 36px -6px rgba(27, 25, 23, 0.09), 0 8px 16px -4px rgba(27, 25, 23, 0.04);
+  --shadow-dark: 0 20px 40px -8px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 8px 24px -4px rgba(214, 178, 120, 0.3);
+}

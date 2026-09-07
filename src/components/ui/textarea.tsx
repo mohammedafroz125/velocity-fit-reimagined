@@ -1,21 +1,39 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
-  ({ className, ...props }, ref) => {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  error?: string;
+  label?: string;
+}
+
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, error, label, id, ...props }, ref) => {
+    const textareaId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+
     return (
-      <textarea
-        className={cn(
-          "flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className,
+      <div className="w-full space-y-1.5">
+        {label && (
+          <label
+            htmlFor={textareaId}
+            className="block text-xs font-mono uppercase tracking-wider text-ink-soft"
+          >
+            {label}
+            {props.required && <span className="text-olive-deep ml-1">*</span>}
+          </label>
         )}
-        ref={ref}
-        {...props}
-      />
+        <textarea
+          id={textareaId}
+          className={cn(
+            "flex w-full rounded-2xl border border-ink/15 bg-paper p-4 text-sm text-ink placeholder:text-ink-soft/50 shadow-subtle transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-olive focus-visible:border-olive disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-red-500 focus-visible:ring-red-500",
+            className
+          )}
+          ref={ref}
+          {...props}
+        />
+        {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+      </div>
     );
-  },
+  }
 );
 Textarea.displayName = "Textarea";
-
-export { Textarea };

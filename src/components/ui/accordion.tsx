@@ -1,51 +1,94 @@
-import * as React from "react";
-import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDown } from "lucide-react";
+"use client";
 
+import * as React from "react";
+import { ChevronDown, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const Accordion = AccordionPrimitive.Root;
+interface AccordionItemProps {
+  question: string;
+  answer: string;
+  isOpen?: boolean;
+  onToggle?: () => void;
+  className?: string;
+  variant?: "light" | "dark" | "warm" | "editorial";
+}
 
-const AccordionItem = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn("border-b", className)} {...props} />
-));
-AccordionItem.displayName = "AccordionItem";
+export function AccordionItem({
+  question,
+  answer,
+  isOpen = false,
+  onToggle,
+  className,
+  variant = "editorial",
+}: AccordionItemProps) {
+  if (variant === "editorial") {
+    return (
+      <div className={cn("border-b border-ink/10 transition-colors py-1", className)}>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="w-full text-left py-5 flex items-center justify-between gap-4 font-display text-xl md:text-2xl font-medium text-ink transition-colors hover:text-olive-deep focus:outline-none"
+          aria-expanded={isOpen}
+        >
+          <span>{question}</span>
+          <span className="flex-shrink-0 size-8 rounded-full border border-ink/15 flex items-center justify-center text-ink-soft transition-transform">
+            {isOpen ? <Minus className="size-4 text-olive-deep" /> : <Plus className="size-4" />}
+          </span>
+        </button>
+        {isOpen && (
+          <div className="pb-6 pr-8 text-base md:text-lg leading-relaxed text-ink-soft animate-in fade-in slide-in-from-top-1 duration-200">
+            {answer}
+          </div>
+        )}
+      </div>
+    );
+  }
 
-const AccordionTrigger = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
-    <AccordionPrimitive.Trigger
-      ref={ref}
+  const isDark = variant === "dark";
+  const isWarm = variant === "warm";
+
+  return (
+    <div
       className={cn(
-        "flex flex-1 items-center justify-between py-4 text-sm font-medium cursor-pointer transition-all hover:underline text-left [&[data-state=open]>svg]:rotate-180",
-        className,
+        "rounded-2xl border transition-all duration-200 overflow-hidden",
+        isDark
+          ? "bg-ink text-paper border-white/10"
+          : isWarm
+          ? "bg-paper border-ink/10 shadow-subtle"
+          : "bg-paper border-ink/10 shadow-subtle",
+        isOpen && (isDark ? "border-champagne/40" : "border-olive/40 shadow-card"),
+        className
       )}
-      {...props}
     >
-      {children}
-      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
-    </AccordionPrimitive.Trigger>
-  </AccordionPrimitive.Header>
-));
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
-
-const AccordionContent = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Content
-    ref={ref}
-    className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-    {...props}
-  >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
-  </AccordionPrimitive.Content>
-));
-AccordionContent.displayName = AccordionPrimitive.Content.displayName;
-
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
+      <button
+        type="button"
+        onClick={onToggle}
+        className={cn(
+          "w-full text-left p-6 flex items-center justify-between gap-4 font-display text-lg md:text-xl transition-colors focus:outline-none",
+          isDark ? "text-ivory" : "text-ink"
+        )}
+        aria-expanded={isOpen}
+      >
+        <span>{question}</span>
+        <ChevronDown
+          className={cn(
+            "w-5 h-5 flex-shrink-0 text-olive transition-transform duration-200",
+            isOpen && "transform rotate-180"
+          )}
+        />
+      </button>
+      {isOpen && (
+        <div
+          className={cn(
+            "px-6 pb-6 pt-1 text-sm md:text-base leading-relaxed border-t",
+            isDark
+              ? "text-ivory/70 border-white/10"
+              : "text-ink-soft border-ink/10"
+          )}
+        >
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}

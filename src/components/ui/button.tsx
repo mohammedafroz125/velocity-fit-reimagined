@@ -1,52 +1,74 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium cursor-pointer transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-olive focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] cursor-pointer gap-2",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:-translate-y-0.5",
-        warm: "bg-secondary text-secondary-foreground hover:bg-accent hover:-translate-y-0.5",
-        inverse: "bg-primary-foreground text-primary hover:bg-champagne hover:-translate-y-0.5",
-        glass: "border border-primary-foreground/25 text-primary-foreground hover:border-primary-foreground/60 hover:-translate-y-0.5",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        default: "bg-ink text-paper hover:bg-ink-soft shadow-subtle",
+        gold: "bg-ink text-paper hover:bg-ink-soft shadow-subtle",
+        goldOutline:
+          "border border-ink/15 bg-transparent text-ink hover:bg-paper font-medium",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border border-ink/15 bg-transparent text-ink hover:bg-paper hover:border-ink/30 font-medium",
+        inverse: "bg-paper text-ink hover:bg-ivory shadow-subtle font-medium",
+        glass:
+          "border border-ivory/20 bg-ivory/10 text-ivory backdrop-blur hover:bg-ivory/20 font-medium",
+        olive: "bg-olive text-paper hover:bg-olive-deep shadow-subtle",
+        dark: "bg-ink text-paper hover:bg-ink-soft shadow-dark font-medium border border-white/10",
+        darkOutline:
+          "border border-ivory/20 text-ivory hover:bg-ivory/10 font-medium",
+        secondary:
+          "bg-paper text-ink hover:bg-mist/80 border border-ink/10 shadow-subtle font-medium",
+        ghost:
+          "text-ink hover:bg-paper/70 font-medium",
+        ghostLight:
+          "text-ivory hover:bg-ivory/10 font-medium",
+        link: "text-olive-deep hover:underline p-0 h-auto font-normal",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 px-7",
-        icon: "size-11 p-0",
+        sm: "h-9 min-h-[36px] px-4 text-xs",
+        md: "h-11 min-h-[44px] px-6 text-sm",
+        lg: "h-13 min-h-[52px] px-8 text-base font-medium",
+        icon: "h-11 w-11 min-h-[44px] min-w-[44px] p-0 rounded-full",
+      },
+      fullWidth: {
+        true: "w-full",
       },
     },
     defaultVariants: {
       variant: "default",
-      size: "default",
+      size: "md",
     },
-  },
+  }
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, fullWidth, asChild = false, children, ...props }, ref) => {
+    const classes = cn(buttonVariants({ variant, size, fullWidth, className }));
+    if (asChild && React.isValidElement(children)) {
+      return React.cloneElement(children as React.ReactElement<{ className?: string }>, {
+        className: cn(classes, (children as React.ReactElement<{ className?: string }>).props.className),
+        ...props,
+      });
+    }
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <button
+        className={classes}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </button>
     );
-  },
+  }
 );
 Button.displayName = "Button";
-
-export { Button, buttonVariants };

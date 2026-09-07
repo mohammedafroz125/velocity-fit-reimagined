@@ -58,6 +58,7 @@ export const contactSubmissionSchema = z.object({
   preferredContactMethod: z
     .enum(["WhatsApp", "Phone Call", "Email"])
     .default("WhatsApp"),
+  website_honey: z.string().optional(),
   attribution: z
     .object({
       utmSource: z.string().optional(),
@@ -188,7 +189,7 @@ export const assessmentSubmissionSchema = z.object({
     .string()
     .min(1, "Please indicate how you discovered Velocity Fit")
     .transform((val) => sanitizeText(val)),
-
+  website_honey: z.string().optional(),
   attribution: z
     .object({
       utmSource: z.string().optional(),

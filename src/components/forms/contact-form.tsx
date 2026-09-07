@@ -18,6 +18,7 @@ export function ContactForm() {
     primaryGoal: "",
     preferredContactMethod: "WhatsApp",
     message: "",
+    website_honey: "",
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
@@ -57,6 +58,7 @@ export function ContactForm() {
           email: formData.email || undefined,
           primaryGoal: formData.primaryGoal || undefined,
           message: formData.message || undefined,
+          website_honey: formData.website_honey || undefined,
           attribution,
         }),
       });
@@ -89,14 +91,14 @@ export function ContactForm() {
             Thank you, <strong>{formData.fullName}</strong>. Dr. Lubna Fatima&apos;s team will connect with you via {formData.preferredContactMethod} shortly.
           </p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="shadow-subtle">
           <a
             href={`https://wa.me/${siteConfig.contact.whatsappRaw}?text=${encodeURIComponent(
-              `Hello Dr. Lubna, I submitted an inquiry on the Velocity Fit website for ${formData.fullName}.`
+              `Hello Dr. Lubna, I just submitted an inquiry on the Velocity Fit website for ${formData.fullName} regarding ${formData.primaryGoal || "transformation programs"}.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2"
           >
             <MessageSquareQuote className="w-4 h-4" />
             <span>Connect Immediately on WhatsApp</span>
@@ -108,6 +110,18 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Invisible Anti-Spam Honeypot */}
+      <input
+        type="text"
+        name="website_honey"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        value={formData.website_honey}
+        onChange={(e) => setFormData({ ...formData, website_honey: e.target.value })}
+        className="opacity-0 absolute -z-10 select-none pointer-events-none w-0 h-0 overflow-hidden"
+      />
+
       <div className="space-y-2">
         <p className="eyebrow">Send a Direct Message</p>
         <h3 className="font-display text-2xl sm:text-3xl font-medium text-ink">

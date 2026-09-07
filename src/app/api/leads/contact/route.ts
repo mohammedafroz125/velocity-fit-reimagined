@@ -35,6 +35,18 @@ export async function POST(req: NextRequest) {
     }
 
     const data = parseResult.data;
+
+    // 2.5 Honeypot Bot Trap: Silently ignore automated bot submissions
+    if (data.website_honey && data.website_honey.trim().length > 0) {
+      console.warn("[SPAM BLOCKED] Honeypot field triggered on Contact Submission.");
+      return NextResponse.json({
+        success: true,
+        leadId: "lead_bot_filtered",
+        isNew: false,
+        message: "Inquiry successfully recorded in Velocity Fit CRM",
+      });
+    }
+
     const phoneNormalized = normalizePhone(data.phone);
 
     // 3. Create or Update Lead with Deduplication

@@ -126,8 +126,13 @@ export function verifyRazorpaySignature(params: {
     }
   }
 
-  // Development / Mock Verification
-  // In development mode when secret is not set, accepts valid mock signature or matching prefix
+  // In production, real cryptographic signature verification with RAZORPAY_KEY_SECRET is strictly mandatory
+  if (process.env.NODE_ENV === "production") {
+    console.error("[SECURITY ALERT] Razorpay payment verification rejected in production: RAZORPAY_KEY_SECRET is not configured or signature was invalid.");
+    return false;
+  }
+
+  // Development / Mock Verification (Local test suites & dev sandbox only)
   if (params.orderId.startsWith("order_mock_") || params.signature.startsWith("mock_sig_")) {
     return (
       params.signature === `mock_sig_${params.orderId}` ||
@@ -161,14 +166,21 @@ export function verifyWebhookSignature(
   if (!signature) return false;
 
   const webhookSecret = customSecret || process.env.RAZORPAY_WEBHOOK_SECRET;
-  if (!webhookSecret) {
+
+  // In production, webhook signature verification is strictly mandatory
+  if (process.env.NODE_ENV === "production") {
+    if (!webhookSecret) {
+      console.error("[SECURITY ALERT] Razorpay webhook verification rejected in production: RAZORPAY_WEBHOOK_SECRET is not configured.");
+      return false;
+    }
+  } else if (!webhookSecret) {
     // In dev mode without webhook secret, accept mock signatures for automated testing
     return signature === "mock_webhook_signature" || signature.startsWith("mock_");
   }
 
   try {
     const expectedSignature = crypto
-      .createHmac("sha256", webhookSecret)
+      .createHmac("sha256", webhookSecret!)
       .update(rawBody)
       .digest("hex");
 

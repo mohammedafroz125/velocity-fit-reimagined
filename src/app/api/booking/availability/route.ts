@@ -2,11 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { bookingSlotQuerySchema } from "@/lib/validations/booking";
 import { getCalendarProvider } from "@/lib/calendar";
 import { crmDb } from "@/lib/supabase/db";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    // 0. Rate Limiting Check (30 requests per minute per IP)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const rateLimit = await checkRateLimit(`availability:${ip}`, 30, 60000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "Too many availability requests. Please try again in a moment." },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const dateParam = searchParams.get("date");
 

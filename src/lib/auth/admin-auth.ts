@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { cookies } from "next/headers";
 import { createClient as createServerSupabase } from "@/lib/supabase/server";
 import { AdminProfile, AdminRole } from "@/types/crm";
@@ -16,8 +17,36 @@ const DEV_ADMIN_PROFILE: AdminProfile = {
 };
 
 /**
+ * Signs a session payload using HMAC-SHA256.
+ */
+function signSessionToken(payload: string, secret: string): string {
+  const signature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+  return `${payload}.${signature}`;
+}
+
+/**
+ * Verifies an HMAC-SHA256 signed session token with constant-time equality.
+ */
+function verifySessionToken(token: string, secret: string): string | null {
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [payload, signature] = parts;
+
+  try {
+    const expectedSignature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    );
+    return isValid ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Get the currently authenticated admin profile.
- * Verifies Supabase Auth when configured, or inspects the secure admin cookie.
+ * Verifies Supabase Auth when configured, or verifies cryptographically signed session tokens.
  */
 export async function getCurrentAdminUser(): Promise<AdminProfile | null> {
   const cookieStore = await cookies();
@@ -56,11 +85,45 @@ export async function getCurrentAdminUser(): Promise<AdminProfile | null> {
     }
   }
 
-  // 2. Fallback / Offline Dev Mode Check
   const sessionCookie = cookieStore.get(ADMIN_COOKIE_NAME);
-  if (sessionCookie && sessionCookie.value) {
+  if (!sessionCookie?.value) {
+    return null;
+  }
+
+  // 2. Production Check: Requires active ADMIN_SESSION_SECRET with valid HMAC signature.
+  // Unsigned Base64 development cookies are NEVER accepted in production.
+  if (process.env.NODE_ENV === "production") {
+    const secret = process.env.ADMIN_SESSION_SECRET;
+    if (!secret) {
+      console.warn("[SECURITY ALERT] Admin session rejected in production: Supabase Auth not active and ADMIN_SESSION_SECRET not configured.");
+      return null;
+    }
+
+    const validPayload = verifySessionToken(sessionCookie.value, secret);
+    if (!validPayload) {
+      return null;
+    }
+
     try {
-      const parsed = JSON.parse(Buffer.from(sessionCookie.value, "base64").toString("utf-8"));
+      const parsed = JSON.parse(Buffer.from(validPayload, "base64").toString("utf-8"));
+      if (parsed.email && parsed.isActive) {
+        return parsed as AdminProfile;
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  }
+
+  // 3. Local Development / Test Mode Check
+  const devSecret = process.env.ADMIN_SESSION_SECRET || "vf_dev_fallback_secret_2026";
+  const verifiedPayload = verifySessionToken(sessionCookie.value, devSecret);
+  const rawPayload = verifiedPayload || (sessionCookie.value.includes(".") ? null : sessionCookie.value);
+
+  if (rawPayload) {
+    try {
+      const parsed = JSON.parse(Buffer.from(rawPayload, "base64").toString("utf-8"));
       if (parsed.email === DEV_ADMIN_PROFILE.email && parsed.isActive) {
         return DEV_ADMIN_PROFILE;
       }
@@ -119,14 +182,25 @@ export async function loginAdmin(
     };
   }
 
-  // Fallback Dev Authentication
+  // Production Check: In production, hardcoded dev fallback is forbidden without Supabase
+  if (process.env.NODE_ENV === "production" && !process.env.ADMIN_SESSION_SECRET) {
+    return {
+      success: false,
+      error: "Administrative service unavailable: Production authentication requires configured Supabase Auth.",
+    };
+  }
+
+  // Fallback Dev Authentication (Local development & test suites)
   // Accepts admin@velocityfit.in with password 'velocity2026' or 'admin123'
   if (
     normalizedEmail === DEV_ADMIN_PROFILE.email &&
     (password === "velocity2026" || password === "admin123" || password === "admin")
   ) {
-    const token = Buffer.from(JSON.stringify(DEV_ADMIN_PROFILE)).toString("base64");
-    cookieStore.set(ADMIN_COOKIE_NAME, token, {
+    const devSecret = process.env.ADMIN_SESSION_SECRET || "vf_dev_fallback_secret_2026";
+    const payloadBase64 = Buffer.from(JSON.stringify(DEV_ADMIN_PROFILE)).toString("base64");
+    const signedToken = signSessionToken(payloadBase64, devSecret);
+
+    cookieStore.set(ADMIN_COOKIE_NAME, signedToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

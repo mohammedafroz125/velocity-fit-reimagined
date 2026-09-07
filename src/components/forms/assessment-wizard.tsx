@@ -70,6 +70,7 @@ export function AssessmentWizard({ initialGoal }: { initialGoal?: string }) {
     pastRoadblocks: "",
     readyFor60DaysCommitment: "Yes",
     referralSource: "Instagram",
+    website_honey: "",
   });
 
   React.useEffect(() => {
@@ -208,6 +209,7 @@ export function AssessmentWizard({ initialGoal }: { initialGoal?: string }) {
           pastRoadblocks: form.pastRoadblocks || undefined,
           readyFor60DaysCommitment: form.readyFor60DaysCommitment,
           referralSource: form.referralSource,
+          website_honey: form.website_honey || undefined,
           attribution,
         }),
       });
@@ -315,6 +317,18 @@ export function AssessmentWizard({ initialGoal }: { initialGoal?: string }) {
       {/* Main Form Container */}
       <div className="p-7 sm:p-12 rounded-[2rem] bg-paper border border-ink/10 shadow-elevated">
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Invisible Anti-Spam Honeypot */}
+          <input
+            type="text"
+            name="website_honey"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            value={form.website_honey}
+            onChange={(e) => setForm({ ...form, website_honey: e.target.value })}
+            className="opacity-0 absolute -z-10 select-none pointer-events-none w-0 h-0 overflow-hidden"
+          />
+
           <div className="space-y-2 border-b border-ink/10 pb-5">
             <span className="font-mono text-xs uppercase tracking-wider text-olive-deep font-semibold">
               {currentStepConfig.subtitle}

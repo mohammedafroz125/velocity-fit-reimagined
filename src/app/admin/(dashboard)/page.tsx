@@ -22,7 +22,7 @@ export default async function AdminDashboardPage() {
       label: "New Leads",
       value: metrics.newLeads,
       icon: UserPlus,
-      color: "text-blue-800 bg-blue-50 border-blue-200",
+      color: "text-emerald-800 bg-emerald-50 border-emerald-200",
       description: "Awaiting initial contact",
     },
     {
@@ -36,21 +36,21 @@ export default async function AdminDashboardPage() {
       label: "Consultations Booked",
       value: metrics.consultationsBooked,
       icon: CalendarCheck,
-      color: "text-olive-deep bg-olive/10 border-olive/20",
+      color: "text-green-800 bg-green-50 border-green-200",
       description: "Confirmed with Dr. Fatima",
     },
     {
       label: "Converted",
       value: metrics.converted,
       icon: Award,
-      color: "text-ink bg-champagne/25 border-champagne/40",
+      color: "text-yellow-800 bg-yellow-50 border-yellow-200",
       description: "Paid transformation enrollments",
     },
     {
       label: "Active Customers",
       value: metrics.activeCustomers,
       icon: Sparkles,
-      color: "text-purple-800 bg-purple-50 border-purple-200",
+      color: "text-teal-800 bg-teal-50 border-teal-200",
       description: "Currently in Flex or Grit tracks",
     },
   ];
@@ -60,9 +60,16 @@ export default async function AdminDashboardPage() {
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-ink/10">
         <div className="space-y-1">
-          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-olive-deep block">
-            Practice Overview
-          </span>
+          {/* Islamic greeting strip */}
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-2"
+            style={{ background: "rgba(26,71,49,0.08)", border: "1px solid rgba(26,71,49,0.15)" }}
+          >
+            <span className="text-sm" style={{ fontFamily: "serif", color: "#1a4731" }}>☽</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] font-semibold" style={{ color: "#1a4731" }}>
+              بِسْمِ اللَّه &nbsp;·&nbsp; Practice Overview
+            </span>
+          </div>
           <h1 className="font-display text-2xl sm:text-3xl font-medium text-ink tracking-tight">
             Clinical Command Center
           </h1>
@@ -74,7 +81,8 @@ export default async function AdminDashboardPage() {
         <div className="flex items-center space-x-3">
           <Link
             href="/admin/leads"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-paper hover:bg-ink-soft text-xs font-semibold tracking-wide transition-all shadow-subtle"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all shadow-subtle"
+            style={{ background: "#1a4731", color: "#f0d060" }}
           >
             <Users className="w-4 h-4" />
             <span>Open Lead Pipeline</span>
